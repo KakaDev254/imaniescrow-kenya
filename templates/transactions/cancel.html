@@ -1,0 +1,269 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Cancel Transaction - ImaniEscrow Kenya{% endblock %}
+
+{% block content %}
+<div class="confirm-container">
+    <div class="container">
+        <div class="confirm-wrapper">
+            <div class="confirm-card">
+                <div class="confirm-header cancel-header">
+                    <div class="confirm-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <h1>Cancel Transaction</h1>
+                    <p>Transaction: {{ transaction.transaction_id }}</p>
+                </div>
+                
+                <div class="confirm-body">
+                    <div class="transaction-summary cancel-summary">
+                        <h3>{{ transaction.title }}</h3>
+                        <div class="summary-details">
+                            <div class="summary-item">
+                                <span>Amount:</span>
+                                <strong>KES {{ transaction.amount|floatformat:2 }}</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Status:</span>
+                                <strong>{{ transaction.get_status_display }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Are you sure?</strong>
+                            <p>Cancelling this transaction will stop all progress. If payment has been made, a refund will be processed. This action cannot be undone.</p>
+                        </div>
+                    </div>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="cancellation_reason">Reason for Cancellation *</label>
+                            <textarea 
+                                name="cancellation_reason" 
+                                id="cancellation_reason" 
+                                class="form-control" 
+                                rows="4" 
+                                placeholder="Please provide a reason for cancelling this transaction..."
+                                required
+                            ></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn-danger btn-lg">
+                                <i class="fas fa-times-circle"></i> Confirm Cancellation
+                            </button>
+                            <a href="{% url 'transactions:detail' transaction.transaction_id %}" class="btn-outline">Go Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirm-container {
+        background-color: #F5F6FA;
+        min-height: calc(100vh - 200px);
+        padding: 40px 0;
+    }
+    
+    .confirm-wrapper {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .confirm-card {
+        background-color: #FFFFFF;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .cancel-header {
+        background-color: #666666;
+    }
+    
+    .confirm-header {
+        color: white;
+        padding: 40px 30px;
+        text-align: center;
+    }
+    
+    .confirm-icon {
+        width: 80px;
+        height: 80px;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2rem;
+    }
+    
+    .confirm-header h1 {
+        color: white;
+        margin-bottom: 10px;
+        font-size: 1.8rem;
+    }
+    
+    .confirm-header p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.95rem;
+    }
+    
+    .confirm-body {
+        padding: 30px;
+    }
+    
+    .cancel-summary {
+        border-left-color: #666666;
+    }
+    
+    .transaction-summary {
+        background-color: #F8F9FA;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border-left: 4px solid #666666;
+    }
+    
+    .transaction-summary h3 {
+        margin-bottom: 15px;
+        color: #1a1a1a;
+    }
+    
+    .summary-details {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        color: #666;
+        font-size: 0.95rem;
+    }
+    
+    .summary-item strong {
+        color: #1a1a1a;
+    }
+    
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        display: flex;
+        gap: 12px;
+    }
+    
+    .alert-warning {
+        background-color: #FFF3E6;
+        border: 1px solid #FFD9B3;
+        color: #CC5200;
+    }
+    
+    .alert i {
+        font-size: 1.2rem;
+        margin-top: 3px;
+    }
+    
+    .alert strong {
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .alert p {
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #DDD;
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #666666;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    
+    .btn-danger {
+        background-color: #CC0000;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .btn-danger:hover {
+        background-color: #990000;
+    }
+    
+    .btn-lg {
+        padding: 15px 30px;
+        font-size: 1.05rem;
+    }
+    
+    @media (max-width: 768px) {
+        .confirm-header {
+            padding: 30px 20px;
+        }
+        
+        .confirm-body {
+            padding: 20px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions .btn-danger,
+        .form-actions .btn-outline {
+            text-align: center;
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

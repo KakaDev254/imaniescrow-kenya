@@ -1,0 +1,217 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Pricing - SecureEscrow Kenya{% endblock %}
+
+{% block content %}
+<div class="pricing-page">
+    <div class="container">
+        <div class="page-header-center">
+            <h1>Simple, Transparent Pricing</h1>
+            <p>No hidden fees. Only pay when you transact.</p>
+        </div>
+        
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Basic</h3>
+                    <div class="price">
+                        <span class="amount">1.5%</span>
+                        <span class="period">per transaction</span>
+                    </div>
+                    <p>For transactions up to KES 100,000</p>
+                </div>
+                <div class="pricing-features">
+                    <ul>
+                        <li><i class="fas fa-check"></i> Secure fund holding</li>
+                        <li><i class="fas fa-check"></i> M-PESA integration</li>
+                        <li><i class="fas fa-check"></i> Email notifications</li>
+                        <li><i class="fas fa-check"></i> Basic support</li>
+                        <li><i class="fas fa-check"></i> 3-day inspection period</li>
+                    </ul>
+                </div>
+                <div class="pricing-footer">
+                    <a href="{% url 'users:register' %}" class="btn-outline">Get Started</a>
+                </div>
+            </div>
+            
+            <div class="pricing-card featured">
+                <div class="popular-badge">Most Popular</div>
+                <div class="pricing-header">
+                    <h3>Business</h3>
+                    <div class="price">
+                        <span class="amount">1%</span>
+                        <span class="period">per transaction</span>
+                    </div>
+                    <p>For transactions up to KES 1,000,000</p>
+                </div>
+                <div class="pricing-features">
+                    <ul>
+                        <li><i class="fas fa-check"></i> Everything in Basic</li>
+                        <li><i class="fas fa-check"></i> Priority support</li>
+                        <li><i class="fas fa-check"></i> Custom inspection periods</li>
+                        <li><i class="fas fa-check"></i> Bulk transactions</li>
+                        <li><i class="fas fa-check"></i> Detailed reporting</li>
+                        <li><i class="fas fa-check"></i> API access</li>
+                    </ul>
+                </div>
+                <div class="pricing-footer">
+                    <a href="{% url 'users:register' %}" class="btn-primary">Get Started</a>
+                </div>
+            </div>
+            
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Enterprise</h3>
+                    <div class="price">
+                        <span class="amount">Custom</span>
+                        <span class="period">pricing</span>
+                    </div>
+                    <p>For high-volume transactions</p>
+                </div>
+                <div class="pricing-features">
+                    <ul>
+                        <li><i class="fas fa-check"></i> Everything in Business</li>
+                        <li><i class="fas fa-check"></i> Dedicated account manager</li>
+                        <li><i class="fas fa-check"></i> Custom integration</li>
+                        <li><i class="fas fa-check"></i> White-label solution</li>
+                        <li><i class="fas fa-check"></i> SLA guarantee</li>
+                    </ul>
+                </div>
+                <div class="pricing-footer">
+                    <a href="{% url 'core:contact' %}" class="btn-outline">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pricing-page {
+        background-color: #F8F9FA;
+        min-height: calc(100vh - 200px);
+        padding: 60px 0;
+    }
+    
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-top: 40px;
+    }
+    
+    .pricing-card {
+        background-color: #FFFFFF;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        position: relative;
+        transition: transform 0.3s;
+    }
+    
+    .pricing-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .pricing-card.featured {
+        border: 3px solid #006600;
+        transform: scale(1.05);
+    }
+    
+    .pricing-card.featured:hover {
+        transform: scale(1.05) translateY(-5px);
+    }
+    
+    .popular-badge {
+        background-color: #006600;
+        color: white;
+        text-align: center;
+        padding: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    
+    .pricing-header {
+        padding: 30px;
+        text-align: center;
+        border-bottom: 1px solid #EEEEEE;
+    }
+    
+    .pricing-header h3 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        color: #1a1a1a;
+    }
+    
+    .price {
+        margin-bottom: 15px;
+    }
+    
+    .amount {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #006600;
+    }
+    
+    .period {
+        color: #666666;
+        font-size: 1rem;
+    }
+    
+    .pricing-header p {
+        color: #666666;
+        font-size: 0.9rem;
+    }
+    
+    .pricing-features {
+        padding: 30px;
+    }
+    
+    .pricing-features ul {
+        list-style: none;
+    }
+    
+    .pricing-features ul li {
+        padding: 10px 0;
+        color: #333333;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .pricing-features ul li i {
+        color: #006600;
+    }
+    
+    .pricing-footer {
+        padding: 30px;
+        text-align: center;
+        border-top: 1px solid #EEEEEE;
+    }
+    
+    @media (max-width: 1024px) {
+        .pricing-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .pricing-card.featured {
+            transform: scale(1);
+        }
+        
+        .pricing-card.featured:hover {
+            transform: translateY(-5px);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .pricing-grid {
+            grid-template-columns: 1fr;
+            max-width: 500px;
+            margin: 40px auto 0;
+        }
+    }
+</style>
+{% endblock %}

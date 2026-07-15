@@ -1,0 +1,324 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}My Transactions - SecureEscrow Kenya{% endblock %}
+
+{% block content %}
+<div class="transactions-container">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1>My Transactions</h1>
+                <p>Manage and track all your escrow transactions</p>
+            </div>
+            <a href="{% url 'transactions:create' %}" class="btn-primary">
+                <i class="fas fa-plus"></i> New Transaction
+            </a>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-row">
+            <div class="mini-stat">
+                <span class="mini-stat-number">{{ transactions.count }}</span>
+                <span class="mini-stat-label">Total</span>
+            </div>
+            <div class="mini-stat active">
+                <span class="mini-stat-number">{{ active_count }}</span>
+                <span class="mini-stat-label">Active</span>
+            </div>
+            <div class="mini-stat completed">
+                <span class="mini-stat-number">{{ completed_count }}</span>
+                <span class="mini-stat-label">Completed</span>
+            </div>
+            <div class="mini-stat disputed">
+                <span class="mini-stat-number">{{ disputed_count }}</span>
+                <span class="mini-stat-label">Disputed</span>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <a href="{% url 'transactions:list' %}" class="filter-chip {% if not status_filter %}active{% endif %}">All</a>
+                <a href="?status=pending_payment" class="filter-chip {% if status_filter == 'pending_payment' %}active{% endif %}">Pending Payment</a>
+                <a href="?status=in_progress" class="filter-chip {% if status_filter == 'in_progress' %}active{% endif %}">In Progress</a>
+                <a href="?status=delivered" class="filter-chip {% if status_filter == 'delivered' %}active{% endif %}">Delivered</a>
+                <a href="?status=completed" class="filter-chip {% if status_filter == 'completed' %}active{% endif %}">Completed</a>
+                <a href="?status=disputed" class="filter-chip {% if status_filter == 'disputed' %}active{% endif %}">Disputed</a>
+            </div>
+        </div>
+        
+        <!-- Transactions List -->
+        {% if transactions %}
+        <div class="transactions-list">
+            {% for transaction in transactions %}
+            <a href="{% url 'transactions:detail' transaction.transaction_id %}" class="transaction-card">
+                <div class="transaction-card-header">
+                    <div class="transaction-id">{{ transaction.transaction_id }}</div>
+                    <div class="transaction-status" style="background-color: {{ transaction.get_status_color }}20; color: {{ transaction.get_status_color }}; border: 1px solid {{ transaction.get_status_color }}40;">
+                        {{ transaction.get_status_display }}
+                    </div>
+                </div>
+                <div class="transaction-card-body">
+                    <h3>{{ transaction.title }}</h3>
+                    <p class="transaction-type">
+                        <i class="fas fa-tag"></i> {{ transaction.get_transaction_type_display }}
+                    </p>
+                </div>
+                <div class="transaction-card-footer">
+                    <div class="transaction-amount">KES {{ transaction.amount|floatformat:2 }}</div>
+                    <div class="transaction-party">
+                        {% if user == transaction.buyer %}
+                            <span>Seller: {{ transaction.seller.get_full_name }}</span>
+                        {% else %}
+                            <span>Buyer: {{ transaction.buyer.get_full_name }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="transaction-date">{{ transaction.created_at|date:"M d, Y" }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state-full">
+            <i class="fas fa-exchange-alt"></i>
+            <h2>No Transactions Yet</h2>
+            <p>Start your first secure escrow transaction today!</p>
+            <a href="{% url 'transactions:create' %}" class="btn-primary">Create Transaction</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .transactions-container {
+        background-color: #F5F6FA;
+        min-height: calc(100vh - 200px);
+        padding: 30px 0;
+    }
+    
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    
+    .page-header h1 {
+        color: #1a1a1a;
+        margin-bottom: 5px;
+    }
+    
+    .page-header p {
+        color: #666666;
+    }
+    
+    /* Mini Stats */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    
+    .mini-stat {
+        background-color: #FFFFFF;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid #DDDDDD;
+    }
+    
+    .mini-stat.active {
+        border-left-color: #FF6600;
+    }
+    
+    .mini-stat.completed {
+        border-left-color: #006600;
+    }
+    
+    .mini-stat.disputed {
+        border-left-color: #CC0000;
+    }
+    
+    .mini-stat-number {
+        display: block;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 5px;
+    }
+    
+    .mini-stat-label {
+        font-size: 0.85rem;
+        color: #666666;
+    }
+    
+    /* Filters */
+    .filters-bar {
+        margin-bottom: 25px;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 5px;
+    }
+    
+    .filter-group {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .filter-chip {
+        padding: 8px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        color: #666666;
+        background-color: #FFFFFF;
+        border: 2px solid #EEEEEE;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+        white-space: nowrap;
+    }
+    
+    .filter-chip:hover {
+        border-color: #006600;
+        color: #006600;
+    }
+    
+    .filter-chip.active {
+        background-color: #006600;
+        color: #FFFFFF;
+        border-color: #006600;
+    }
+    
+    /* Transaction Cards */
+    .transactions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .transaction-card {
+        background-color: #FFFFFF;
+        border-radius: 10px;
+        padding: 20px;
+        text-decoration: none;
+        color: inherit;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s;
+        border-left: 4px solid transparent;
+    }
+    
+    .transaction-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        border-left-color: #006600;
+    }
+    
+    .transaction-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .transaction-id {
+        font-size: 0.85rem;
+        color: #666666;
+        font-weight: 500;
+    }
+    
+    .transaction-status {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .transaction-card-body h3 {
+        color: #1a1a1a;
+        margin-bottom: 5px;
+        font-size: 1.1rem;
+    }
+    
+    .transaction-type {
+        color: #666666;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .transaction-type i {
+        margin-right: 5px;
+        color: #006600;
+    }
+    
+    .transaction-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #F0F0F0;
+    }
+    
+    .transaction-amount {
+        font-weight: 700;
+        color: #006600;
+        font-size: 1.1rem;
+    }
+    
+    .transaction-party {
+        font-size: 0.9rem;
+        color: #666666;
+    }
+    
+    .transaction-date {
+        font-size: 0.85rem;
+        color: #999999;
+    }
+    
+    /* Empty State */
+    .empty-state-full {
+        text-align: center;
+        padding: 80px 20px;
+        background-color: #FFFFFF;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .empty-state-full i {
+        font-size: 4rem;
+        color: #CCCCCC;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state-full h2 {
+        margin-bottom: 10px;
+    }
+    
+    .empty-state-full p {
+        color: #666666;
+        margin-bottom: 30px;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .transaction-card-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .page-header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}

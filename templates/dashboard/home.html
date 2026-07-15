@@ -1,0 +1,743 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - SecureEscrow Kenya{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="dashboard-welcome">
+            <div class="welcome-text">
+                <h1>Welcome back, {{ user.first_name }}!</h1>
+                <p>Here's your transaction overview</p>
+            </div>
+            <div class="quick-actions">
+                <a href="{% url 'transactions:create' %}" class="btn-primary">
+                    <i class="fas fa-plus"></i> New Transaction
+                </a>
+                <a href="{% url 'transactions:list' %}" class="btn-outline">
+                    <i class="fas fa-list"></i> View All Transactions
+                </a>
+            </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Account Balance</h3>
+                    <span class="stat-value">KES {{ user.account_balance|floatformat:2 }}</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Active Transactions</h3>
+                    <span class="stat-value">{{ active_transactions }}</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Completed</h3>
+                    <span class="stat-value">{{ completed_transactions }}</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Pending Payment</h3>
+                    <span class="stat-value">{{ pending_transactions }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Stats Row -->
+        <div class="stats-grid-secondary">
+            <div class="stat-card-small">
+                <i class="fas fa-chart-line"></i>
+                <div>
+                    <span class="small-stat-value">KES {{ total_volume|floatformat:2 }}</span>
+                    <span class="small-stat-label">Total Volume</span>
+                </div>
+            </div>
+            <div class="stat-card-small">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <span class="small-stat-value">{{ disputed_transactions }}</span>
+                    <span class="small-stat-label">Disputes</span>
+                </div>
+            </div>
+            <div class="stat-card-small">
+                <i class="fas fa-bell"></i>
+                <div>
+                    <span class="small-stat-value">{{ actions_needed|length }}</span>
+                    <span class="small-stat-label">Actions Needed</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Dashboard Content -->
+        <div class="dashboard-grid">
+            <!-- Actions Needed -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-tasks"></i> Actions Needed</h3>
+                </div>
+                <div class="card-body">
+                    {% if actions_needed %}
+                    <div class="actions-list">
+                        {% for transaction in actions_needed %}
+                        <a href="{% url 'transactions:detail' transaction.transaction_id %}" class="action-item">
+                            <div class="action-info">
+                                <span class="action-title">{{ transaction.title }}</span>
+                                <span class="action-id">{{ transaction.transaction_id }}</span>
+                            </div>
+                            <div class="action-status">
+                                {% if transaction.status == 'pending_payment' and user == transaction.buyer %}
+                                <span class="action-badge pay">Pay Now</span>
+                                {% elif transaction.status == 'payment_confirmed' and user == transaction.seller %}
+                                <span class="action-badge deliver">Deliver</span>
+                                {% elif transaction.status == 'delivered' and user == transaction.buyer %}
+                                <span class="action-badge confirm">Confirm</span>
+                                {% endif %}
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state-small">
+                        <i class="fas fa-check-circle" style="color: #006600;"></i>
+                        <p>No pending actions. Great job!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Recent Transactions -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-history"></i> Recent Transactions</h3>
+                    <a href="{% url 'transactions:list' %}" class="text-link">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_transactions %}
+                    <div class="recent-transactions-list">
+                        {% for transaction in recent_transactions %}
+                        <a href="{% url 'transactions:detail' transaction.transaction_id %}" class="recent-transaction-item">
+                            <div class="rt-info">
+                                <h4>{{ transaction.title }}</h4>
+                                <span class="rt-id">{{ transaction.transaction_id }}</span>
+                            </div>
+                            <div class="rt-amount">KES {{ transaction.amount|floatformat:2 }}</div>
+                            <div class="rt-status" style="color: {{ transaction.get_status_color }};">
+                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                                {{ transaction.get_status_display }}
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <p>No transactions yet</p>
+                        <a href="{% url 'transactions:create' %}" class="btn-primary btn-sm">Start Your First Transaction</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Transaction Chart (Simple Bar) -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-bar"></i> Transaction History</h3>
+                    <span class="text-muted">Last 6 Months</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        {% for data in monthly_data %}
+                        <div class="chart-bar-wrapper">
+                            <div class="chart-bar" style="height: {% widthratio data.count 10 100 %}%;" title="{{ data.month }}: {{ data.count }} transactions">
+                                <span class="chart-value">{{ data.count }}</span>
+                            </div>
+                            <span class="chart-label">{{ data.month }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notifications -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-bell"></i> Notifications</h3>
+                </div>
+                <div class="card-body">
+                    <div class="notification-list">
+                        {% for notification in notifications %}
+                        <div class="notification-item {% if notification.unread %}unread{% endif %}">
+                            <div class="notification-icon">
+                                <i class="fas {{ notification.icon }}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p>{{ notification.message }}</p>
+                                <span class="notification-time">{{ notification.time }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- M-PESA Integration -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-mobile-alt"></i> M-PESA Integration</h3>
+                </div>
+                <div class="card-body">
+                    {% if user.has_mpesa %}
+                        <div class="mpesa-status connected">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <h4>M-PESA Connected</h4>
+                                <p>{{ user.phone_number }}</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="mpesa-status">
+                            <i class="fas fa-mobile-alt"></i>
+                            <div>
+                                <h4>Connect M-PESA</h4>
+                                <p>Link your M-PESA account for easy payments</p>
+                            </div>
+                            <a href="#" class="btn-outline btn-sm">Connect Now</a>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mpesa-actions">
+                        <a href="#" class="btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Deposit Funds
+                        </a>
+                        <a href="#" class="btn-outline btn-sm">
+                            <i class="fas fa-minus"></i> Withdraw
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-link"></i> Quick Links</h3>
+                </div>
+                <div class="card-body">
+                    <div class="quick-links-grid">
+                        <a href="{% url 'transactions:create' %}" class="quick-link-item">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>New Transaction</span>
+                        </a>
+                        <a href="{% url 'transactions:list' %}" class="quick-link-item">
+                            <i class="fas fa-list"></i>
+                            <span>All Transactions</span>
+                        </a>
+                        <a href="{% url 'users:profile' %}" class="quick-link-item">
+                            <i class="fas fa-user-circle"></i>
+                            <span>My Profile</span>
+                        </a>
+                        <a href="{% url 'users:edit_profile' %}" class="quick-link-item">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit Profile</span>
+                        </a>
+                        <a href="#" class="quick-link-item">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Help Center</span>
+                        </a>
+                        <a href="#" class="quick-link-item">
+                            <i class="fas fa-headset"></i>
+                            <span>Support</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        background-color: #F5F6FA;
+        min-height: calc(100vh - 200px);
+        padding: 30px 0;
+    }
+    
+    /* Welcome Section */
+    .dashboard-welcome {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        background-color: #FFFFFF;
+        padding: 25px 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .welcome-text h1 {
+        color: #1a1a1a;
+        margin-bottom: 5px;
+        font-size: 1.6rem;
+    }
+    
+    .welcome-text p {
+        color: #666666;
+        margin: 0;
+    }
+    
+    .quick-actions {
+        display: flex;
+        gap: 12px;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        background-color: #FFFFFF;
+        padding: 20px 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: transform 0.3s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-icon {
+        width: 55px;
+        height: 55px;
+        background-color: #E8F5E9;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: #006600;
+    }
+    
+    .stat-info h3 {
+        font-size: 0.85rem;
+        color: #666666;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .stat-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+    
+    /* Secondary Stats */
+    .stats-grid-secondary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .stat-card-small {
+        background-color: #FFFFFF;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .stat-card-small i {
+        font-size: 1.3rem;
+        color: #006600;
+    }
+    
+    .small-stat-value {
+        display: block;
+        font-weight: 600;
+        color: #1a1a1a;
+        font-size: 1.1rem;
+    }
+    
+    .small-stat-label {
+        font-size: 0.8rem;
+        color: #666;
+    }
+    
+    /* Dashboard Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .dashboard-card {
+        background-color: #FFFFFF;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 2px solid #F0F0F0;
+    }
+    
+    .card-header h3 {
+        color: #1a1a1a;
+        font-size: 1.05rem;
+        margin: 0;
+    }
+    
+    .card-header h3 i {
+        margin-right: 8px;
+        color: #006600;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .text-link {
+        color: #006600;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    
+    .text-muted {
+        color: #999;
+        font-size: 0.85rem;
+    }
+    
+    /* Actions List */
+    .actions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .action-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background-color: #F8F9FA;
+        border-radius: 8px;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s;
+        border-left: 4px solid transparent;
+    }
+    
+    .action-item:hover {
+        background-color: #F0FFF0;
+        border-left-color: #006600;
+        transform: translateX(5px);
+    }
+    
+    .action-info {
+        flex: 1;
+    }
+    
+    .action-title {
+        display: block;
+        font-weight: 500;
+        font-size: 0.95rem;
+        margin-bottom: 3px;
+    }
+    
+    .action-id {
+        font-size: 0.8rem;
+        color: #999;
+        font-family: monospace;
+    }
+    
+    .action-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .action-badge.pay {
+        background-color: #FFF3E6;
+        color: #FF6600;
+    }
+    
+    .action-badge.deliver {
+        background-color: #E8F4FD;
+        color: #0044CC;
+    }
+    
+    .action-badge.confirm {
+        background-color: #E6FFE6;
+        color: #006600;
+    }
+    
+    .action-item > i {
+        color: #CCC;
+    }
+    
+    /* Recent Transactions */
+    .recent-transactions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .recent-transaction-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px;
+        background-color: #F8F9FA;
+        border-radius: 8px;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s;
+    }
+    
+    .recent-transaction-item:hover {
+        background-color: #F0FFF0;
+        transform: translateX(5px);
+    }
+    
+    .rt-info h4 {
+        font-size: 0.9rem;
+        margin-bottom: 3px;
+    }
+    
+    .rt-id {
+        font-size: 0.75rem;
+        color: #999;
+        font-family: monospace;
+    }
+    
+    .rt-amount {
+        font-weight: 600;
+        color: #006600;
+        font-size: 0.95rem;
+    }
+    
+    .rt-status {
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    /* Chart */
+    .chart-container {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        height: 150px;
+        padding: 10px 0;
+    }
+    
+    .chart-bar-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+    }
+    
+    .chart-bar {
+        width: 30px;
+        background-color: #006600;
+        border-radius: 5px 5px 0 0;
+        min-height: 10px;
+        transition: all 0.3s;
+        position: relative;
+    }
+    
+    .chart-bar:hover {
+        background-color: #004d00;
+        opacity: 0.8;
+    }
+    
+    .chart-value {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .chart-label {
+        font-size: 0.75rem;
+        color: #999;
+        margin-top: 8px;
+    }
+    
+    /* Quick Links */
+    .quick-links-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+    
+    .quick-link-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 15px 10px;
+        background-color: #F8F9FA;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #333;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+    
+    .quick-link-item:hover {
+        border-color: #006600;
+        background-color: #F0FFF0;
+    }
+    
+    .quick-link-item i {
+        font-size: 1.3rem;
+        color: #006600;
+    }
+    
+    .quick-link-item span {
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-align: center;
+    }
+    
+    /* Empty States */
+    .empty-state {
+        text-align: center;
+        padding: 30px;
+    }
+    
+    .empty-state i {
+        font-size: 2.5rem;
+        color: #CCC;
+        margin-bottom: 10px;
+    }
+    
+    .empty-state p {
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .empty-state-small {
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .empty-state-small i {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+    
+    .empty-state-small p {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .btn-sm {
+        padding: 8px 18px;
+        font-size: 0.9rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .stats-grid-secondary {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-welcome {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .quick-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .quick-actions .btn-primary,
+        .quick-actions .btn-outline {
+            text-align: center;
+            width: 100%;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-grid-secondary {
+            grid-template-columns: 1fr;
+        }
+        
+        .quick-links-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .chart-container {
+            height: 100px;
+        }
+        
+        .chart-bar {
+            width: 20px;
+        }
+    }
+</style>
+{% endblock %}

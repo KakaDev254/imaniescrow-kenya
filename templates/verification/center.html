@@ -1,0 +1,188 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Verification Center - ImaniEscrow Kenya{% endblock %}
+
+{% block content %}
+<div class="verify-container">
+    <div class="container">
+        <h1>Verification Center</h1>
+        <p>Complete verifications to increase your transaction limits</p>
+        
+        <!-- Verification Status Cards -->
+        <div class="verify-grid">
+            <!-- Email -->
+            <div class="verify-card {% if is_email_verified %}verified{% endif %}">
+                <div class="verify-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h3>Email Verification</h3>
+                <p>{{ request.user.email }}</p>
+                {% if is_email_verified %}
+                <span class="badge-verified"><i class="fas fa-check"></i> Verified</span>
+                {% else %}
+                <a href="{% url 'verification:send_email_otp' %}" class="btn-primary btn-sm">Verify Now</a>
+                {% endif %}
+            </div>
+            
+            <!-- Phone -->
+            <div class="verify-card {% if is_phone_verified %}verified{% endif %}">
+                <div class="verify-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Phone Verification</h3>
+                <p>{{ request.user.phone_number|default:"Not set" }}</p>
+                {% if is_phone_verified %}
+                <span class="badge-verified"><i class="fas fa-check"></i> Verified</span>
+                {% elif request.user.phone_number %}
+                <a href="{% url 'verification:send_phone_otp' %}" class="btn-primary btn-sm">Verify Now</a>
+                {% else %}
+                <a href="{% url 'users:edit_profile' %}" class="btn-outline btn-sm">Add Phone</a>
+                {% endif %}
+            </div>
+            
+            <!-- ID -->
+            <div class="verify-card {% if is_id_verified %}verified{% endif %}">
+                <div class="verify-icon">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <h3>ID Verification</h3>
+                <p>National ID / Passport</p>
+                {% if is_id_verified %}
+                <span class="badge-verified"><i class="fas fa-check"></i> Verified</span>
+                {% else %}
+                <a href="{% url 'verification:verify_id' %}" class="btn-primary btn-sm">Verify Now</a>
+                {% endif %}
+            </div>
+            
+            <!-- Selfie -->
+            <div class="verify-card {% if is_selfie_verified %}verified{% endif %}">
+                <div class="verify-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h3>Selfie Verification</h3>
+                <p>Facial recognition</p>
+                {% if is_selfie_verified %}
+                <span class="badge-verified"><i class="fas fa-check"></i> Verified</span>
+                {% else %}
+                <a href="{% url 'verification:verify_selfie' %}" class="btn-primary btn-sm">Verify Now</a>
+                {% endif %}
+            </div>
+            
+            <!-- Address -->
+            <div class="verify-card {% if is_address_verified %}verified{% endif %}">
+                <div class="verify-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h3>Address Verification</h3>
+                <p>Physical address</p>
+                {% if is_address_verified %}
+                <span class="badge-verified"><i class="fas fa-check"></i> Verified</span>
+                {% else %}
+                <a href="{% url 'verification:verify_address' %}" class="btn-primary btn-sm">Verify Now</a>
+                {% endif %}
+            </div>
+            
+            <!-- Business -->
+            <div class="verify-card {% if is_business_verified %}verified{% endif %}">
+                <div class="verify-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h3>Business Verification</h3>
+                <p>For business accounts</p>
+                {% if is_business_verified %}
+                <span class="badge-verified"><i class="fas fa-check"></i> Verified</span>
+                {% else %}
+                <a href="{% url 'verification:verify_business' %}" class="btn-primary btn-sm">Verify Now</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .verify-container {
+        background-color: #F5F6FA;
+        min-height: calc(100vh - 200px);
+        padding: 40px 0;
+    }
+    
+    .verify-container h1 {
+        margin-bottom: 10px;
+    }
+    
+    .verify-container > .container > p {
+        color: #666;
+        margin-bottom: 30px;
+    }
+    
+    .verify-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+    
+    .verify-card {
+        background-color: #FFFFFF;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border: 2px solid transparent;
+        transition: all 0.3s;
+    }
+    
+    .verify-card.verified {
+        border-color: #006600;
+        background-color: #F0FFF0;
+    }
+    
+    .verify-icon {
+        width: 60px;
+        height: 60px;
+        background-color: #E8F5E9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 1.5rem;
+        color: #006600;
+    }
+    
+    .verify-card h3 {
+        margin-bottom: 8px;
+    }
+    
+    .verify-card p {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    
+    .badge-verified {
+        display: inline-block;
+        padding: 8px 20px;
+        background-color: #006600;
+        color: white;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .badge-verified i {
+        margin-right: 5px;
+    }
+    
+    .btn-sm {
+        padding: 8px 20px;
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .verify-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

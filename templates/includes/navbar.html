@@ -1,0 +1,52 @@
+<nav class="navbar">
+    <div class="container nav-container">
+        <div class="nav-brand">
+            <a href="{% url 'core:home' %}">
+                <i class="fas fa-shield-alt"></i>
+                <span>ImaniEscrow</span>
+            </a>
+        </div>
+        
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" type="button">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
+        <div class="nav-menu" id="navMenu">
+            <ul class="nav-list">
+                <li><a href="{% url 'core:home' %}" class="nav-link">Home</a></li>
+                <li><a href="{% url 'core:how_it_works' %}" class="nav-link">How It Works</a></li>
+                <li><a href="{% url 'core:pricing' %}" class="nav-link">Pricing</a></li>
+                
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'dashboard:home' %}" class="nav-link">Dashboard</a></li>
+                    <li class="nav-dropdown">
+                        <a href="#" class="nav-link dropdown-toggle">
+                            {{ user.get_full_name|default:user.email }}
+                            <i class="fas fa-chevron-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'users:profile' %}">
+                                <i class="fas fa-user"></i> Profile
+                            </a></li>
+                            <li><a href="{% url 'transactions:list' %}">
+                                <i class="fas fa-exchange-alt"></i> My Transactions
+                            </a></li>
+                            <li><a href="{% url 'dashboard:home' %}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a href="{% url 'users:logout' %}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'users:login' %}" class="nav-link btn-nav-outline">Login</a></li>
+                    <li><a href="{% url 'users:register' %}" class="nav-link btn-nav-primary">Get Started</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

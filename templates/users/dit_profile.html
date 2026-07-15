@@ -1,0 +1,212 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - SecureEscrow Kenya{% endblock %}
+
+{% block content %}
+<div class="edit-profile-container">
+    <div class="container">
+        <div class="edit-profile-header">
+            <h1>Edit Profile</h1>
+            <a href="{% url 'users:profile' %}" class="btn-outline">
+                <i class="fas fa-arrow-left"></i> Back to Profile
+            </a>
+        </div>
+        
+        <div class="edit-profile-card">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Please correct the errors below.
+                </div>
+                {% endif %}
+                
+                <div class="form-section">
+                    <h3>Personal Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                            {{ form.first_name }}
+                            {{ form.first_name.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                            {{ form.last_name }}
+                            {{ form.last_name.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+                            {{ form.phone_number }}
+                            {{ form.phone_number.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.national_id.id_for_label }}">National ID</label>
+                            {{ form.national_id }}
+                            {{ form.national_id.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.date_of_birth.id_for_label }}">Date of Birth</label>
+                            {{ form.date_of_birth }}
+                            {{ form.date_of_birth.errors }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Profile Picture</h3>
+                    <div class="form-group">
+                        {{ form.profile_picture }}
+                        {{ form.profile_picture.errors }}
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Location</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="{{ form.city.id_for_label }}">City</label>
+                            {{ form.city }}
+                            {{ form.city.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.county.id_for_label }}">County</label>
+                            {{ form.county }}
+                            {{ form.county.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.postal_code.id_for_label }}">Postal Code</label>
+                            {{ form.postal_code }}
+                            {{ form.postal_code.errors }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>M-PESA Details</h3>
+                    <div class="form-group">
+                        <label for="{{ form.mpesa_name.id_for_label }}">M-PESA Registered Name</label>
+                        {{ form.mpesa_name }}
+                        {{ form.mpesa_name.errors }}
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Bio</h3>
+                    <div class="form-group">
+                        {{ form.bio }}
+                        {{ form.bio.errors }}
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                    <a href="{% url 'users:profile' %}" class="btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-profile-container {
+        background-color: #F8F9FA;
+        min-height: calc(100vh - 200px);
+        padding: 40px 0;
+    }
+    
+    .edit-profile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .edit-profile-card {
+        background-color: #FFFFFF;
+        border-radius: 10px;
+        padding: 40px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+    }
+    
+    .form-section h3 {
+        color: #006600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #F0F0F0;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333333;
+        font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #DDDDDD;
+        border-radius: 5px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #006600;
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px solid #F0F0F0;
+    }
+    
+    @media (max-width: 768px) {
+        .edit-profile-card {
+            padding: 20px;
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .edit-profile-header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}

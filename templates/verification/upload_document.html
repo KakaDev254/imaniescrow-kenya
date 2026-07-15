@@ -1,0 +1,94 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Verify {{ verification_type }} - ImaniEscrow Kenya{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <div class="container">
+        <div class="upload-card">
+            <h2>Verify Your {{ verification_type }}</h2>
+            <p>Upload the required documents for verification</p>
+            
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% if verification_type == 'ID' %}
+                <div class="form-group">
+                    <label>{{ form.id_number.label }}</label>
+                    {{ form.id_number }}
+                    {{ form.id_number.errors }}
+                </div>
+                <div class="form-group">
+                    <label>{{ form.front_id.label }}</label>
+                    {{ form.front_id }}
+                </div>
+                <div class="form-group">
+                    <label>{{ form.back_id.label }}</label>
+                    {{ form.back_id }}
+                </div>
+                {% elif verification_type == 'Selfie' %}
+                <div class="form-group">
+                    <label>{{ form.selfie.label }}</label>
+                    {{ form.selfie }}
+                    <small>Take a clear photo of your face</small>
+                </div>
+                {% endif %}
+                
+                <button type="submit" class="btn-primary btn-block">Submit for Verification</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        background-color: #F5F6FA;
+        min-height: calc(100vh - 200px);
+        padding: 40px 0;
+    }
+    
+    .upload-card {
+        max-width: 500px;
+        margin: 0 auto;
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .upload-card h2 {
+        margin-bottom: 10px;
+    }
+    
+    .upload-card > p {
+        color: #666;
+        margin-bottom: 25px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #DDD;
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .btn-block {
+        width: 100%;
+        padding: 15px;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}

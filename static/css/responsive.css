@@ -1,0 +1,111 @@
+/* Responsive Design for Navbar */
+@media screen and (max-width: 768px) {
+    /* Show hamburger button */
+    .nav-toggle {
+        display: flex;
+    }
+    
+    /* Hide menu by default on mobile */
+    .nav-menu {
+        display: none;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #FFFFFF;
+        padding: 20px;
+        overflow-y: auto;
+        z-index: 999;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Show menu when active */
+    .nav-menu.active {
+        display: block;
+    }
+    
+    /* Stack navigation items vertically */
+    .nav-list {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .nav-list li {
+        width: 100%;
+    }
+    
+    .nav-link {
+        display: block;
+        padding: 12px 16px;
+        font-size: 1.1rem;
+        border-bottom: 1px solid #F0F0F0;
+    }
+    
+    /* Mobile buttons */
+    .btn-nav-primary,
+    .btn-nav-outline {
+        text-align: center;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+    
+    .btn-nav-primary {
+        background-color: #006600 !important;
+        color: #FFFFFF !important;
+    }
+    
+    .btn-nav-outline {
+        border: 2px solid #006600;
+    }
+    
+    /* Dropdown on mobile */
+    .nav-dropdown {
+        position: relative;
+    }
+    
+    .dropdown-menu {
+        display: none;
+        position: static;
+        box-shadow: none;
+        margin-top: 0;
+        padding: 0;
+        border: none;
+        background-color: #F8F9FA;
+        border-radius: 0;
+    }
+    
+    .nav-dropdown.active .dropdown-menu {
+        display: block;
+    }
+    
+    .dropdown-menu li a {
+        padding: 12px 30px;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.5rem; }
+    
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .messages-container {
+        left: 20px;
+        right: 20px;
+    }
+}

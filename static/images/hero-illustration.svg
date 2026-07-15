@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Secure escrow service in Kenya">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e8f7ee"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f9d58"/>
+      <stop offset="100%" stop-color="#0a7d43"/>
+    </linearGradient>
+    <linearGradient id="greenSoft" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#34c77a"/>
+      <stop offset="100%" stop-color="#0f9d58"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0a7d43" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bg)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="120" cy="110" r="60" fill="#0f9d58" opacity="0.08"/>
+  <circle cx="700" cy="480" r="90" fill="#0f9d58" opacity="0.08"/>
+  <circle cx="680" cy="120" r="30" fill="#0f9d58" opacity="0.12"/>
+
+  <!-- Title -->
+  <text x="400" y="70" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="34" font-weight="700" fill="#0a7d43">Secure Escrow</text>
+  <text x="400" y="102" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="18" font-weight="500" fill="#0f9d58" letter-spacing="4">KENYA</text>
+
+  <!-- Buyer -->
+  <g filter="url(#shadow)">
+    <circle cx="140" cy="330" r="42" fill="url(#greenSoft)"/>
+    <circle cx="140" cy="318" r="14" fill="#ffffff"/>
+    <path d="M116 348 Q140 330 164 348 L164 360 Q140 372 116 360 Z" fill="#ffffff"/>
+  </g>
+  <text x="140" y="410" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="16" font-weight="600" fill="#0a7d43">Buyer</text>
+
+  <!-- Seller -->
+  <g filter="url(#shadow)">
+    <circle cx="660" cy="330" r="42" fill="url(#greenSoft)"/>
+    <circle cx="660" cy="318" r="14" fill="#ffffff"/>
+    <path d="M636 348 Q660 330 684 348 L684 360 Q660 372 636 360 Z" fill="#ffffff"/>
+  </g>
+  <text x="660" y="410" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="16" font-weight="600" fill="#0a7d43">Seller</text>
+
+  <!-- Escrow vault (center) -->
+  <g filter="url(#shadow)">
+    <rect x="310" y="240" width="180" height="180" rx="20" fill="url(#green)"/>
+    <rect x="330" y="260" width="140" height="140" rx="12" fill="#ffffff"/>
+    <!-- Shield -->
+    <path d="M400 285 L440 300 L440 348 Q440 378 400 392 Q360 378 360 348 L360 300 Z" fill="url(#greenSoft)"/>
+    <!-- Check -->
+    <path d="M380 345 L395 360 L422 328" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Lock dial -->
+    <circle cx="400" cy="410" r="6" fill="#ffffff"/>
+  </g>
+  <text x="400" y="460" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" fill="#0a7d43">Escrow Vault</text>
+
+  <!-- Arrow buyer -> vault (money) -->
+  <path d="M188 320 Q245 280 305 300" stroke="#0f9d58" stroke-width="3" fill="none" stroke-dasharray="6 6"/>
+  <polygon points="305,300 293,294 297,306" fill="#0f9d58"/>
+  <g transform="translate(230,268)">
+    <rect x="-22" y="-14" width="44" height="28" rx="6" fill="#ffffff" stroke="#0f9d58" stroke-width="2"/>
+    <text x="0" y="5" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="700" fill="#0a7d43">KSh</text>
+  </g>
+
+  <!-- Arrow vault -> seller (goods) -->
+  <path d="M495 300 Q555 280 612 320" stroke="#0f9d58" stroke-width="3" fill="none" stroke-dasharray="6 6"/>
+  <polygon points="612,320 600,314 604,326" fill="#0f9d58"/>
+  <g transform="translate(570,268)">
+    <rect x="-16" y="-14" width="32" height="28" rx="4" fill="#ffffff" stroke="#0f9d58" stroke-width="2"/>
+    <path d="M-16 -6 L16 -6" stroke="#0f9d58" stroke-width="2"/>
+  </g>
+
+  <!-- Footer tagline -->
+  <text x="400" y="540" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="15" fill="#0a7d43" opacity="0.85">Safe payments. Trusted trades. Peace of mind.</text>
+</svg>
