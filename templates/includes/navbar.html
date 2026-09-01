@@ -1,3 +1,6 @@
+{% load static %}
+{% load cloudinary %}
+
 <nav class="navbar">
     <div class="container nav-container">
         <div class="nav-brand">
@@ -21,23 +24,62 @@
                 
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'dashboard:home' %}" class="nav-link">Dashboard</a></li>
+                    
+                    {% if user.is_staff or user.is_superuser %}
+                    <li><a href="{% url 'dashboard:admin_dashboard' %}" class="nav-link admin-link">
+                        <i class="fas fa-crown"></i> Admin
+                    </a></li>
+                    {% endif %}
+                    
                     <li class="nav-dropdown">
                         <a href="#" class="nav-link dropdown-toggle">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" class="nav-user-avatar">
+                            {% else %}
+                                <span class="nav-user-avatar-placeholder">
+                                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                                </span>
+                            {% endif %}
                             {{ user.get_full_name|default:user.email }}
                             <i class="fas fa-chevron-down"></i>
                         </a>
                         <ul class="dropdown-menu">
+                            <li class="dropdown-user-info">
+                                <div class="dropdown-user-avatar">
+                                    {% if user.profile_picture %}
+                                        <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}">
+                                    {% else %}
+                                        <span class="nav-user-avatar-placeholder-large">
+                                            {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <div class="dropdown-user-details">
+                                    <strong>{{ user.get_full_name }}</strong>
+                                    <span>{{ user.email }}</span>
+                                    {% if user.is_verified %}
+                                        <span class="verified-badge"><i class="fas fa-check-circle"></i> Verified</span>
+                                    {% endif %}
+                                </div>
+                            </li>
+                            <li class="dropdown-divider"></li>
                             <li><a href="{% url 'users:profile' %}">
-                                <i class="fas fa-user"></i> Profile
+                                <i class="fas fa-user"></i> My Profile
                             </a></li>
                             <li><a href="{% url 'transactions:list' %}">
                                 <i class="fas fa-exchange-alt"></i> My Transactions
+                            </a></li>
+                            <li><a href="{% url 'payment:deposit' %}">
+                                <i class="fas fa-wallet"></i> My Wallet
+                            </a></li>
+                            <li><a href="{% url 'verification:center' %}">
+                                <i class="fas fa-shield-alt"></i> Verification
                             </a></li>
                             <li><a href="{% url 'dashboard:home' %}">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
                             </a></li>
                             <li class="dropdown-divider"></li>
-                            <li><a href="{% url 'users:logout' %}">
+                            <li><a href="{% url 'users:logout' %}" class="logout-link">
                                 <i class="fas fa-sign-out-alt"></i> Logout
                             </a></li>
                         </ul>

@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load cloudinary %}
 
 {% block title %}My Profile - SecureEscrow Kenya{% endblock %}
 
@@ -18,7 +19,7 @@
             <div class="profile-card">
                 <div class="profile-avatar">
                     {% if user.profile_picture %}
-                        <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}">
+                        <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" loading="lazy">
                     {% else %}
                         <div class="avatar-placeholder">
                             {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
@@ -105,7 +106,7 @@
                         {% if user.is_email_verified %}
                             <i class="fas fa-check-circle status-icon"></i>
                         {% else %}
-                            <a href="#" class="btn-outline btn-sm">Verify</a>
+                            <a href="{% url 'verification:send_email_otp' %}" class="btn-outline btn-sm">Verify</a>
                         {% endif %}
                     </div>
                     
@@ -124,7 +125,7 @@
                         {% if user.is_phone_verified %}
                             <i class="fas fa-check-circle status-icon"></i>
                         {% else %}
-                            <a href="#" class="btn-outline btn-sm">Verify</a>
+                            <a href="{% url 'verification:send_phone_otp' %}" class="btn-outline btn-sm">Verify</a>
                         {% endif %}
                     </div>
                     
@@ -143,9 +144,32 @@
                         {% if user.is_verified %}
                             <i class="fas fa-check-circle status-icon"></i>
                         {% else %}
-                            <a href="#" class="btn-outline btn-sm">Verify</a>
+                            <a href="{% url 'verification:verify_id' %}" class="btn-outline btn-sm">Verify</a>
                         {% endif %}
                     </div>
+                    
+                    <!-- Selfie Verification -->
+                    <div class="verification-item {% if user.verification_requests.all|length > 0 %}verified{% else %}pending{% endif %}">
+                        <i class="fas fa-camera"></i>
+                        <div class="verification-info">
+                            <h4>Selfie Verification</h4>
+                            <span>
+                                {% if user.verification_requests.all %}
+                                    Submitted
+                                {% else %}
+                                    Pending
+                                {% endif %}
+                            </span>
+                        </div>
+                        <a href="{% url 'verification:verify_selfie' %}" class="btn-outline btn-sm">Verify</a>
+                    </div>
+                </div>
+                
+                <!-- Link to full verification center -->
+                <div class="verification-center-link">
+                    <a href="{% url 'verification:center' %}" class="btn-primary btn-block">
+                        <i class="fas fa-shield-alt"></i> Go to Verification Center
+                    </a>
                 </div>
             </div>
         </div>
@@ -193,12 +217,15 @@
         height: 100px;
         border-radius: 50%;
         overflow: hidden;
+        flex-shrink: 0;
+        border: 3px solid #006600;
     }
     
     .profile-avatar img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: center;
     }
     
     .avatar-placeholder {
@@ -347,14 +374,33 @@
         font-size: 0.85rem;
     }
     
+    .verification-center-link {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px solid #F0F0F0;
+    }
+    
+    .btn-block {
+        width: 100%;
+        text-align: center;
+    }
+    
     @media (max-width: 768px) {
         .profile-card {
             flex-direction: column;
             text-align: center;
         }
         
+        .profile-avatar {
+            margin: 0 auto;
+        }
+        
         .details-grid {
             grid-template-columns: 1fr;
+        }
+        
+        .verification-item {
+            flex-wrap: wrap;
         }
     }
 </style>

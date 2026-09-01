@@ -66,11 +66,12 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     
     # Profile information
+    # Cloudinary will handle image storage automatically when configured
     profile_picture = models.ImageField(
         upload_to='profile_pics/', 
         null=True, 
         blank=True,
-        default='profile_pics/default.png'
+        help_text="Upload a profile picture (stored on Cloudinary)"
     )
     bio = models.TextField(max_length=500, blank=True)
     
@@ -133,6 +134,12 @@ class CustomUser(AbstractUser):
             self.is_phone_verified,
             self.is_email_verified
         ])
+    
+    def get_profile_picture_url(self):
+        """Return profile picture URL or a default avatar."""
+        if self.profile_picture:
+            return self.profile_picture.url
+        return f"https://ui-avatars.com/api/?name={self.first_name}+{self.last_name}&background=006600&color=fff"
 
 
 class UserVerification(models.Model):

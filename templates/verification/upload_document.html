@@ -1,4 +1,6 @@
 {% extends 'base/base.html' %}
+{% load static %}
+{% load cloudinary %}
 
 {% block title %}Verify {{ verification_type }} - ImaniEscrow Kenya{% endblock %}
 
@@ -6,35 +8,179 @@
 <div class="upload-container">
     <div class="container">
         <div class="upload-card">
-            <h2>Verify Your {{ verification_type }}</h2>
-            <p>Upload the required documents for verification</p>
+            <div class="upload-header">
+                <div class="upload-icon">
+                    {% if verification_type == 'ID' %}
+                        <i class="fas fa-id-card"></i>
+                    {% elif verification_type == 'Selfie' %}
+                        <i class="fas fa-camera"></i>
+                    {% elif verification_type == 'Address' %}
+                        <i class="fas fa-map-marker-alt"></i>
+                    {% elif verification_type == 'Business' %}
+                        <i class="fas fa-building"></i>
+                    {% else %}
+                        <i class="fas fa-file-upload"></i>
+                    {% endif %}
+                </div>
+                <h2>Verify Your {{ verification_type }}</h2>
+                <p>Upload the required documents for verification</p>
+            </div>
             
-            <form method="POST" enctype="multipart/form-data">
+            <div class="cloudinary-notice">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Documents are securely stored on Cloudinary CDN</span>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data" id="verificationForm">
                 {% csrf_token %}
                 
-                {% if verification_type == 'ID' %}
-                <div class="form-group">
-                    <label>{{ form.id_number.label }}</label>
-                    {{ form.id_number }}
-                    {{ form.id_number.errors }}
-                </div>
-                <div class="form-group">
-                    <label>{{ form.front_id.label }}</label>
-                    {{ form.front_id }}
-                </div>
-                <div class="form-group">
-                    <label>{{ form.back_id.label }}</label>
-                    {{ form.back_id }}
-                </div>
-                {% elif verification_type == 'Selfie' %}
-                <div class="form-group">
-                    <label>{{ form.selfie.label }}</label>
-                    {{ form.selfie }}
-                    <small>Take a clear photo of your face</small>
+                {% if form.errors %}
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Please correct the errors below.
                 </div>
                 {% endif %}
                 
-                <button type="submit" class="btn-primary btn-block">Submit for Verification</button>
+                {% if verification_type == 'ID' %}
+                <div class="form-group">
+                    <label for="{{ form.id_number.id_for_label }}">
+                        <i class="fas fa-hashtag"></i> {{ form.id_number.label }}
+                    </label>
+                    {{ form.id_number }}
+                    {% if form.id_number.errors %}
+                    <div class="form-error">{{ form.id_number.errors }}</div>
+                    {% endif %}
+                    <small class="form-help">Enter your valid Kenyan National ID number</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.front_id.id_for_label }}">
+                        <i class="fas fa-id-card"></i> {{ form.front_id.label }}
+                    </label>
+                    <div class="file-upload-box">
+                        {{ form.front_id }}
+                        <div class="file-upload-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Click to upload front of ID</span>
+                            <small>JPG or PNG, max 5MB</small>
+                        </div>
+                    </div>
+                    {% if form.front_id.errors %}
+                    <div class="form-error">{{ form.front_id.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.back_id.id_for_label }}">
+                        <i class="fas fa-id-card"></i> {{ form.back_id.label }}
+                    </label>
+                    <div class="file-upload-box">
+                        {{ form.back_id }}
+                        <div class="file-upload-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Click to upload back of ID</span>
+                            <small>JPG or PNG, max 5MB</small>
+                        </div>
+                    </div>
+                    {% if form.back_id.errors %}
+                    <div class="form-error">{{ form.back_id.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                {% elif verification_type == 'Selfie' %}
+                <div class="form-group">
+                    <label for="{{ form.selfie.id_for_label }}">
+                        <i class="fas fa-camera"></i> {{ form.selfie.label }}
+                    </label>
+                    <div class="file-upload-box selfie-upload">
+                        {{ form.selfie }}
+                        <div class="file-upload-placeholder">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Click to upload your selfie</span>
+                            <small>Take a clear photo of your face in good lighting</small>
+                        </div>
+                    </div>
+                    {% if form.selfie.errors %}
+                    <div class="form-error">{{ form.selfie.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                {% elif verification_type == 'Address' %}
+                <div class="form-group">
+                    <label for="{{ form.physical_address.id_for_label }}">
+                        <i class="fas fa-map-marker-alt"></i> Physical Address
+                    </label>
+                    {{ form.physical_address }}
+                    {% if form.physical_address.errors %}
+                    <div class="form-error">{{ form.physical_address.errors }}</div>
+                    {% endif %}
+                    <small class="form-help">Enter your complete physical address for verification</small>
+                </div>
+                
+                {% elif verification_type == 'Business' %}
+                <div class="form-group">
+                    <label for="{{ form.business_name.id_for_label }}">
+                        <i class="fas fa-building"></i> Business Name
+                    </label>
+                    {{ form.business_name }}
+                    {% if form.business_name.errors %}
+                    <div class="form-error">{{ form.business_name.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.business_reg_number.id_for_label }}">
+                        <i class="fas fa-file"></i> Business Registration Number
+                    </label>
+                    {{ form.business_reg_number }}
+                    {% if form.business_reg_number.errors %}
+                    <div class="form-error">{{ form.business_reg_number.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.kra_pin.id_for_label }}">
+                        <i class="fas fa-receipt"></i> KRA PIN
+                    </label>
+                    {{ form.kra_pin }}
+                    {% if form.kra_pin.errors %}
+                    <div class="form-error">{{ form.kra_pin.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.business_document.id_for_label }}">
+                        <i class="fas fa-file-upload"></i> Business Document
+                    </label>
+                    <div class="file-upload-box">
+                        {{ form.business_document }}
+                        <div class="file-upload-placeholder">
+                            <i class="fas fa-file-pdf"></i>
+                            <span>Click to upload business document</span>
+                            <small>PDF, DOC, or DOCX</small>
+                        </div>
+                    </div>
+                    {% if form.business_document.errors %}
+                    <div class="form-error">{{ form.business_document.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <div class="verification-note">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <strong>Your documents are safe</strong>
+                        <p>All uploads are encrypted and stored securely on Cloudinary. Only authorized personnel can view them.</p>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary btn-block btn-lg">
+                    <i class="fas fa-check-circle"></i> Submit for Verification
+                </button>
+                
+                <a href="{% url 'verification:center' %}" class="btn-outline btn-block back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Verification Center
+                </a>
             </form>
         </div>
     </div>
@@ -50,7 +196,7 @@
     }
     
     .upload-card {
-        max-width: 500px;
+        max-width: 550px;
         margin: 0 auto;
         background: white;
         padding: 40px;
@@ -58,13 +204,49 @@
         box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     }
     
-    .upload-card h2 {
-        margin-bottom: 10px;
+    .upload-header {
+        text-align: center;
+        margin-bottom: 25px;
     }
     
-    .upload-card > p {
+    .upload-icon {
+        width: 70px;
+        height: 70px;
+        background-color: #E8F5E9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 2rem;
+        color: #006600;
+    }
+    
+    .upload-header h2 {
+        margin-bottom: 8px;
+        color: #1a1a1a;
+    }
+    
+    .upload-header p {
         color: #666;
+        margin: 0;
+    }
+    
+    .cloudinary-notice {
+        background-color: #E8F4FD;
+        border: 1px solid #B3D9FF;
+        color: #0044CC;
+        padding: 12px 15px;
+        border-radius: 8px;
         margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .cloudinary-notice i {
+        font-size: 1.2rem;
     }
     
     .form-group {
@@ -75,20 +257,211 @@
         display: block;
         margin-bottom: 8px;
         font-weight: 500;
+        color: #333;
+        font-size: 0.95rem;
+    }
+    
+    .form-group label i {
+        color: #006600;
+        margin-right: 5px;
     }
     
     .form-control {
         width: 100%;
-        padding: 12px;
+        padding: 12px 15px;
         border: 2px solid #DDD;
         border-radius: 8px;
         font-family: 'Poppins', sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #006600;
+        box-shadow: 0 0 0 3px rgba(0, 102, 0, 0.1);
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .form-help {
+        display: block;
+        margin-top: 5px;
+        color: #666;
+        font-size: 0.85rem;
+    }
+    
+    .form-error {
+        color: #CC0000;
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+    
+    /* File Upload Box */
+    .file-upload-box {
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .file-upload-box input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 2;
+    }
+    
+    .file-upload-placeholder {
+        padding: 30px;
+        border: 2px dashed #DDD;
+        border-radius: 8px;
+        text-align: center;
+        transition: all 0.3s;
+        background-color: #FAFAFA;
+    }
+    
+    .file-upload-box:hover .file-upload-placeholder {
+        border-color: #006600;
+        background-color: #F0FFF0;
+    }
+    
+    .file-upload-placeholder i {
+        font-size: 2rem;
+        color: #999;
+        margin-bottom: 10px;
+        display: block;
+    }
+    
+    .file-upload-placeholder span {
+        display: block;
+        color: #333;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .file-upload-placeholder small {
+        color: #999;
+    }
+    
+    .selfie-upload .file-upload-placeholder i {
+        color: #FF6600;
+    }
+    
+    /* Verification Note */
+    .verification-note {
+        background-color: #F0FFF0;
+        padding: 15px;
+        border-radius: 8px;
+        display: flex;
+        gap: 12px;
+        margin-bottom: 25px;
+        border-left: 4px solid #006600;
+    }
+    
+    .verification-note i {
+        color: #006600;
+        font-size: 1.2rem;
+        margin-top: 3px;
+    }
+    
+    .verification-note strong {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 0.9rem;
+    }
+    
+    .verification-note p {
+        font-size: 0.85rem;
+        color: #666;
+        margin: 0;
+    }
+    
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .alert-error {
+        background-color: #FFE6E6;
+        color: #CC0000;
+        border: 1px solid #FFB3B3;
     }
     
     .btn-block {
         width: 100%;
+    }
+    
+    .btn-lg {
         padding: 15px;
-        margin-top: 20px;
+        font-size: 1.05rem;
+    }
+    
+    .back-link {
+        margin-top: 10px;
+        text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+        .upload-card {
+            padding: 25px 20px;
+        }
+        
+        .upload-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+        
+        .file-upload-placeholder {
+            padding: 20px;
+        }
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        
+        fileInputs.forEach(function(input) {
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                const placeholder = this.parentElement.querySelector('.file-upload-placeholder');
+                
+                if (file) {
+                    // Check file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File size must be less than 5MB');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // Show selected file
+                    if (placeholder) {
+                        const icon = placeholder.querySelector('i');
+                        const text = placeholder.querySelector('span');
+                        const small = placeholder.querySelector('small');
+                        
+                        if (icon) icon.className = 'fas fa-check-circle';
+                        if (icon) icon.style.color = '#006600';
+                        if (text) text.textContent = 'File selected: ' + file.name;
+                        if (small) small.textContent = (file.size / 1024).toFixed(2) + ' KB';
+                        
+                        placeholder.style.borderColor = '#006600';
+                        placeholder.style.backgroundColor = '#F0FFF0';
+                    }
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

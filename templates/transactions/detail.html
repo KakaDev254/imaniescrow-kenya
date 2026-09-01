@@ -1,13 +1,16 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load cloudinary %}
 
-{% block title %}Transaction {{ transaction.transaction_id }} - SecureEscrow Kenya{% endblock %}
+{% block title %}Transaction {{ transaction.transaction_id }} - ImaniEscrow Kenya{% endblock %}
 
 {% block content %}
 <div class="detail-container">
     <div class="container">
         <!-- Breadcrumb -->
         <div class="breadcrumb">
+            <a href="{% url 'dashboard:home' %}">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
             <a href="{% url 'transactions:list' %}">Transactions</a>
             <i class="fas fa-chevron-right"></i>
             <span>{{ transaction.transaction_id }}</span>
@@ -56,7 +59,7 @@
             <div class="detail-main">
                 <!-- Progress Tracker -->
                 <div class="progress-card">
-                    <h3>Transaction Progress</h3>
+                    <h3><i class="fas fa-tasks"></i> Transaction Progress</h3>
                     <div class="progress-tracker">
                         <div class="progress-step completed">
                             <div class="step-circle"><i class="fas fa-check"></i></div>
@@ -94,7 +97,7 @@
                 
                 <!-- Transaction Details -->
                 <div class="info-card">
-                    <h3>Transaction Details</h3>
+                    <h3><i class="fas fa-info-circle"></i> Transaction Details</h3>
                     <div class="info-grid">
                         <div class="info-item">
                             <label>Amount</label>
@@ -125,29 +128,41 @@
                 
                 <!-- Description -->
                 <div class="info-card">
-                    <h3>Description</h3>
+                    <h3><i class="fas fa-file-alt"></i> Description</h3>
                     <p class="description-text">{{ transaction.description }}</p>
                 </div>
                 
                 <!-- Messages -->
                 <div class="messages-card">
-                    <h3>Messages</h3>
+                    <h3><i class="fas fa-comments"></i> Messages</h3>
                     
                     <div class="messages-list">
                         {% for msg in messages_list %}
                         <div class="message-bubble {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
-                            <div class="message-sender">{{ msg.sender.get_full_name }}</div>
+                            <div class="message-sender-info">
+                                {% if msg.sender.profile_picture %}
+                                    {% cloudinary msg.sender.profile_picture width=50 height=50 crop="fill" gravity="face" radius="max" class="message-avatar" alt=msg.sender.get_full_name %}
+                                {% else %}
+                                    <span class="message-avatar-placeholder">
+                                        {{ msg.sender.first_name|first|upper }}{{ msg.sender.last_name|first|upper }}
+                                    </span>
+                                {% endif %}
+                                <span class="message-sender">{{ msg.sender.get_full_name }}</span>
+                            </div>
                             <div class="message-text">{{ msg.message }}</div>
                             {% if msg.attachment %}
                             <div class="message-attachment">
                                 <i class="fas fa-paperclip"></i>
-                                <a href="{{ msg.attachment.url }}">View Attachment</a>
+                                <a href="{{ msg.attachment.url }}" target="_blank">View Attachment</a>
                             </div>
                             {% endif %}
                             <div class="message-time">{{ msg.created_at|date:"M d, H:i" }}</div>
                         </div>
                         {% empty %}
-                        <p class="no-messages">No messages yet. Start the conversation!</p>
+                        <p class="no-messages">
+                            <i class="fas fa-comment-dots"></i><br>
+                            No messages yet. Start the conversation!
+                        </p>
                         {% endfor %}
                     </div>
                     
@@ -157,11 +172,11 @@
                         {{ message_form.message }}
                         <div class="message-actions">
                             <label class="attach-label">
-                                <i class="fas fa-paperclip"></i> Attach
+                                <i class="fas fa-paperclip"></i> Attach File
                                 {{ message_form.attachment }}
                             </label>
                             <button type="submit" class="btn-primary btn-sm">
-                                <i class="fas fa-paper-plane"></i> Send
+                                <i class="fas fa-paper-plane"></i> Send Message
                             </button>
                         </div>
                     </form>
@@ -172,23 +187,48 @@
             <div class="detail-sidebar">
                 <!-- Parties -->
                 <div class="sidebar-card">
-                    <h3>Parties</h3>
+                    <h3><i class="fas fa-users"></i> Parties</h3>
+                    
                     <div class="party">
-                        <div class="party-label">Buyer</div>
-                        <div class="party-name">{{ transaction.buyer.get_full_name }}</div>
+                        <div class="party-header">
+                            {% if transaction.buyer.profile_picture %}
+                                {% cloudinary transaction.buyer.profile_picture width=60 height=60 crop="fill" gravity="face" radius="max" class="party-avatar" alt=transaction.buyer.get_full_name %}
+                            {% else %}
+                                <span class="party-avatar-placeholder">
+                                    {{ transaction.buyer.first_name|first|upper }}{{ transaction.buyer.last_name|first|upper }}
+                                </span>
+                            {% endif %}
+                            <div>
+                                <div class="party-label">Buyer</div>
+                                <div class="party-name">{{ transaction.buyer.get_full_name }}</div>
+                            </div>
+                        </div>
                         <div class="party-email">{{ transaction.buyer.email }}</div>
                     </div>
+                    
                     <div class="party-divider"></div>
+                    
                     <div class="party">
-                        <div class="party-label">Seller</div>
-                        <div class="party-name">{{ transaction.seller.get_full_name }}</div>
+                        <div class="party-header">
+                            {% if transaction.seller.profile_picture %}
+                                {% cloudinary transaction.seller.profile_picture width=60 height=60 crop="fill" gravity="face" radius="max" class="party-avatar" alt=transaction.seller.get_full_name %}
+                            {% else %}
+                                <span class="party-avatar-placeholder">
+                                    {{ transaction.seller.first_name|first|upper }}{{ transaction.seller.last_name|first|upper }}
+                                </span>
+                            {% endif %}
+                            <div>
+                                <div class="party-label">Seller</div>
+                                <div class="party-name">{{ transaction.seller.get_full_name }}</div>
+                            </div>
+                        </div>
                         <div class="party-email">{{ transaction.seller.email }}</div>
                     </div>
                 </div>
                 
                 <!-- Timeline -->
                 <div class="sidebar-card">
-                    <h3>Timeline</h3>
+                    <h3><i class="fas fa-history"></i> Timeline</h3>
                     <div class="timeline">
                         {% for milestone in milestones %}
                         <div class="timeline-item">
@@ -202,6 +242,22 @@
                         {% empty %}
                         <p class="no-data">No milestones yet</p>
                         {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="sidebar-card">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    <div class="quick-actions-vertical">
+                        <a href="{% url 'payment:deposit' %}" class="quick-action-link">
+                            <i class="fas fa-wallet"></i> Deposit Funds
+                        </a>
+                        <a href="{% url 'payment:withdraw' %}" class="quick-action-link">
+                            <i class="fas fa-money-bill-wave"></i> Withdraw Funds
+                        </a>
+                        <a href="{% url 'verification:center' %}" class="quick-action-link">
+                            <i class="fas fa-shield-alt"></i> Verification Center
+                        </a>
                     </div>
                 </div>
             </div>
@@ -318,6 +374,14 @@
         margin-bottom: 20px;
         padding-bottom: 15px;
         border-bottom: 2px solid #F0F0F0;
+        font-size: 1.05rem;
+    }
+    
+    .progress-card h3 i,
+    .info-card h3 i,
+    .messages-card h3 i {
+        margin-right: 8px;
+        color: #006600;
     }
     
     /* Progress Tracker */
@@ -435,10 +499,53 @@
         align-self: flex-start;
     }
     
+    .message-sender-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .message-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .message-avatar-placeholder {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: inherit;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
     .message-sender {
         font-size: 0.85rem;
         font-weight: 600;
+    }
+    
+    .message-text {
         margin-bottom: 5px;
+    }
+    
+    .message-attachment {
+        margin-top: 5px;
+        padding: 8px;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+    }
+    
+    .message-attachment a {
+        color: inherit;
+        text-decoration: underline;
     }
     
     .message-time {
@@ -454,6 +561,12 @@
         border-radius: 8px;
         resize: vertical;
         font-family: 'Poppins', sans-serif;
+        min-height: 80px;
+    }
+    
+    .message-form textarea:focus {
+        outline: none;
+        border-color: #006600;
     }
     
     .message-actions {
@@ -466,6 +579,11 @@
     .attach-label {
         cursor: pointer;
         color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .attach-label:hover {
+        color: #006600;
     }
     
     .attach-label input[type="file"] {
@@ -477,7 +595,18 @@
         font-size: 0.9rem;
     }
     
-    .no-messages,
+    .no-messages {
+        color: #999;
+        text-align: center;
+        padding: 30px 20px;
+    }
+    
+    .no-messages i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+    
     .no-data {
         color: #999;
         text-align: center;
@@ -497,27 +626,64 @@
         margin-bottom: 20px;
         padding-bottom: 15px;
         border-bottom: 2px solid #F0F0F0;
+        font-size: 1rem;
+    }
+    
+    .sidebar-card h3 i {
+        margin-right: 8px;
+        color: #006600;
     }
     
     .party {
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .party-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 5px;
+    }
+    
+    .party-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #006600;
+    }
+    
+    .party-avatar-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #006600;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 700;
+        border: 2px solid #004d00;
     }
     
     .party-label {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: #999;
         text-transform: uppercase;
-        margin-bottom: 3px;
+        letter-spacing: 1px;
     }
     
     .party-name {
         font-weight: 600;
         color: #1a1a1a;
+        font-size: 0.95rem;
     }
     
     .party-email {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: #666;
+        padding-left: 62px;
     }
     
     .party-divider {
@@ -576,6 +742,37 @@
         color: #999;
     }
     
+    /* Quick Actions */
+    .quick-actions-vertical {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .quick-action-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 15px;
+        background-color: #F8F9FA;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #333;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+    
+    .quick-action-link:hover {
+        border-color: #006600;
+        background-color: #F0FFF0;
+        color: #006600;
+    }
+    
+    .quick-action-link i {
+        width: 20px;
+        color: #006600;
+    }
+    
     @media (max-width: 1024px) {
         .detail-grid {
             grid-template-columns: 1fr;
@@ -614,6 +811,10 @@
         
         .message-bubble {
             max-width: 90%;
+        }
+        
+        .party-email {
+            padding-left: 62px;
         }
     }
 </style>

@@ -58,11 +58,31 @@ class VerificationRequest(models.Model):
     verification_type = models.CharField(max_length=20, choices=VERIFICATION_TYPE_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     
-    # Documents
-    front_id = models.ImageField(upload_to='verification/id_front/', null=True, blank=True)
-    back_id = models.ImageField(upload_to='verification/id_back/', null=True, blank=True)
-    selfie = models.ImageField(upload_to='verification/selfies/', null=True, blank=True)
-    business_document = models.FileField(upload_to='verification/business/', null=True, blank=True)
+    # Documents - Stored on Cloudinary when configured
+    front_id = models.ImageField(
+        upload_to='verification/id_front/',
+        null=True,
+        blank=True,
+        help_text="Front of National ID (stored on Cloudinary)"
+    )
+    back_id = models.ImageField(
+        upload_to='verification/id_back/',
+        null=True,
+        blank=True,
+        help_text="Back of National ID (stored on Cloudinary)"
+    )
+    selfie = models.ImageField(
+        upload_to='verification/selfies/',
+        null=True,
+        blank=True,
+        help_text="Selfie for verification (stored on Cloudinary)"
+    )
+    business_document = models.FileField(
+        upload_to='verification/business/',
+        null=True,
+        blank=True,
+        help_text="Business registration document (stored on Cloudinary)"
+    )
     
     # Additional info
     id_number = models.CharField(max_length=50, blank=True)
@@ -92,6 +112,30 @@ class VerificationRequest(models.Model):
     
     def __str__(self):
         return f"{self.user.email} - {self.verification_type} - {self.status}"
+    
+    def get_front_id_url(self):
+        """Return Cloudinary URL for front ID."""
+        if self.front_id:
+            return self.front_id.url
+        return None
+    
+    def get_back_id_url(self):
+        """Return Cloudinary URL for back ID."""
+        if self.back_id:
+            return self.back_id.url
+        return None
+    
+    def get_selfie_url(self):
+        """Return Cloudinary URL for selfie."""
+        if self.selfie:
+            return self.selfie.url
+        return None
+    
+    def get_business_document_url(self):
+        """Return Cloudinary URL for business document."""
+        if self.business_document:
+            return self.business_document.url
+        return None
     
     def approve(self, admin_user=None):
         """Approve the verification request."""
